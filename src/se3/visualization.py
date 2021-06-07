@@ -74,11 +74,11 @@ def viz_point_cloud(*args):
         if len(pointss[0]) == 2:
             for points, label in pointss:
                 color = color_map.get(label, np.random.rand(3,))
-                ax.scatter3D(*points.transpose(), label=label,  color=color)
+                ax.scatter3D(*points.T, label=label,  color=color)
                 ax.legend()
         else:
             for points in pointss:
-                ax.scatter3D(*points.transpose())
+                ax.scatter3D(*points.T)
     stdize_plots(axes,
                  lambda ax: ax.get_zlim(),
                  lambda ax, minval, maxval: ax.set_zlim(minval, maxval))

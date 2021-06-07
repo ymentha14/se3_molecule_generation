@@ -59,7 +59,7 @@ def center(batch):
     """
     Center batch to have a barycenter around 0
     """
-    if len(batch.shape) == 3:
+    if len(batch.shape) == 4
         mean_input = batch.mean(axis=1).unsqueeze(1)
         return batch - mean_input
     else:

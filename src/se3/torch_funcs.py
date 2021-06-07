@@ -179,7 +179,8 @@ def train_one_epoch(model,
 
 def visualize_prediction(transformer, batch_f, batch_f_kwargs, centering):
 
-    points_tens_raw, target_points_tens_raw = batch_f(**batch_f_kwargs)
+    points_raw, target_points_raw = batch_f(**batch_f_kwargs)
+    points_tens_raw, target_points_tens_raw = to_torch_tensor(points_raw),to_torch_tensor(target_points_raw)
     #points_tens_raw,target_points_tens_raw = rotate(points_tens_raw,target_points_tens_raw)
     if centering:
         points_tens, target_points_tens = center(
@@ -199,8 +200,8 @@ def visualize_prediction(transformer, batch_f, batch_f_kwargs, centering):
     points = to_numpy_array(points_tens)
     target_points = to_numpy_array(target_points_tens)
     predicted_points = to_numpy_array(predicted_points_tens)
-    return viz_point_cloud([(points, 'src'), (target_points, 'target')], [
-        (points, 'src'), (predicted_points, 'prediction')])
+    return viz_point_cloud([(points, 'src'), (target_points, 'trgt')], [
+        (points, 'src'), (predicted_points, 'pred')])
 
 
 class MachineScaleChecker():

@@ -149,11 +149,11 @@ def start_training(model,lr,optimizer,epochs,criterion,batch_size,scheduler,devi
         config.criterion = criterion
         config.optimizer = optimizer
         config.lr = lr
+        config.center_input = src_gen.centering
+        config.center_target = trgt_gen.centring
+        config.center_output = center_output
         config.src_gen = src_gen
         config.trgt_gen = trgt_gen
-        config.center_input = center_input
-        config.center_target = center_target
-        config.center_output = center_output
     for epoch in range(epochs):
 
         loss = train_one_epoch(model=model,

@@ -158,7 +158,7 @@ def get_gaussian_point_cloud(N_pts):
 # Spiral Point cloud
 
 
-def get_asym_spiral(spiral_amp=1.0, N_pts=40):
+def get_asym_spiral(spiral_amp=1.0, width_factor=1.0,N_pts=40):
     """
     Generate a spiral with the given amplitude
 
@@ -169,8 +169,8 @@ def get_asym_spiral(spiral_amp=1.0, N_pts=40):
         np.array: spiral point cloud
     """
     zline = np.linspace(0, spiral_amp, N_pts)
-    xline = [(i + 4) * np.sin(i) / 10 for i in zline * 4 * np.pi]
-    yline = [(i + 4) * np.cos(i) / 10 for i in zline * 4 * np.pi]
+    xline = [(i + 4) * np.sin(i) / 10 * width_factor for i in zline * 4 * np.pi]
+    yline = [(i + 4) * np.cos(i) / 10 * width_factor for i in zline * 4 * np.pi]
     return np.array([xline, yline, zline]).transpose()
 
 
@@ -194,6 +194,7 @@ class SpiralGenerator:
     scaling : float=1.0
     shift : float=0.0
     asym : bool=False
+    width_factor :float=1.0
     centering : bool=False
 
     def __post_init__(self):
@@ -202,7 +203,7 @@ class SpiralGenerator:
     @lru_cache(None)
     def generate(self,):
         if self.asym:
-            points = get_asym_spiral(spiral_amp=self.spiral_amp)
+            points = get_asym_spiral(spiral_amp=self.spiral_amp,width_factor=self.width_factor)
         else:
             points = get_spiral(spiral_amp=self.spiral_amp)
 

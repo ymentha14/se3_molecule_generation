@@ -170,7 +170,7 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
     return np.array([xline, yline, zline]).transpose()
 
 
-def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False):
+def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False,center_input=False,center_target=False):
     """
     Return vertical src spiral cloud point and its vertically shifted version.
     """
@@ -181,13 +181,24 @@ def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False):
         points = get_spiral(spiral_amp=spiral_amp)
     [xline, yline, zline] = points.transpose()
     target_points = np.array([xline, yline, (zline+shift)]).transpose()
+    if center_input:
+        points = center(points)
+    if center_target:
+        target_points = center(target_points)
     return points, target_points
 
 
-def get_src_scaled_spirals(spiral_amp=1.0, z_scale=3):
-    points = get_spiral(spiral_amp=spiral_amp)
+def get_src_scaled_spirals(spiral_amp=1.0, z_scale=3,asym=False,center_input=False,center_target=False):
+    if asym:
+        points = get_asym_spiral(spiral_amp=spiral_amp)
+    else:
+        points = get_spiral(spiral_amp=spiral_amp)
     [xline, yline, zline] = points.transpose()
     target_points = np.array([xline, yline, zline * z_scale]).transpose()
+    if center_input:
+        points = center(points)
+    if center_target:
+        target_points = center(target_points)
     return points, target_points
 
 

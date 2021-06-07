@@ -98,8 +98,6 @@ def train_one_epoch(
     use_wandb=True,
     tb_writer=None,
     batch_f_kwargs={},
-    center_input=False,
-    center_target=False,
     center_output=False,
 ):
     """
@@ -108,21 +106,11 @@ def train_one_epoch(
     model.train()
     print(f"Epoch {epoch}")
     # generate batch
-    uncentered_batch_points, uncentered_batch_targets_points = get_batch(
+    batch_points, batch_target_points = get_batch(
         batch_f, batch_f_kwargs, batch_size=batch_size
     )
-    uncentered_batch_points = uncentered_batch_points.to(device)
-    uncentered_batch_targets_points = uncentered_batch_targets_points.to(device)
-
-    if center_input:
-        batch_points = center(uncentered_batch_points)
-    else:
-        batch_points = uncentered_batch_points
-
-    if center_target:
-        batch_target_points = center(uncentered_batch_targets_points)
-    else:
-        batch_target_points = uncentered_batch_targets_points
+    batch_points = batch_points.to(device)
+    batch_target_points = batch_target_points.to(device)
 
     # constant features
     feats = torch.ones(batch_points.shape[0], batch_points.shape[1], 1)

@@ -45,6 +45,7 @@ def plot_coordinates(target_points, predicted_points, coor_str='z'):
     ax.set_xlabel('Point index in the spiral')
     ax.set_ylabel(f'{coor_str.upper()} coordinate')
     ax.set_title('Model predictions')
+    return fig
 
 
 def stdize_plots(axes, get_lim, set_lim):

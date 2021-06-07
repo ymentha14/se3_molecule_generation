@@ -1,0 +1,73 @@
+# YAML Configuration file for the network
+
+# layers can be chosen in {Linear, MultiHeadAttention, Sum, MLP}
+# Dimensions to give:
+#   - Linear (input, output)
+#   - MultiHeadAttention (width)
+#   - Sum ()
+#   - MLP (input, width, ... , width, output)
+
+# Aggregator can be chosen in [PNA, Set2Set]
+
+Global:
+  use_atom_types: False
+  num_atom_types: -1
+  use_bond_types: False
+  num_bond_types: -1
+  latent_dim: 3
+  set_channels: 8
+  lmbdas: [1, 0, 0, 1]      # KLdiv, atom_types, bond_types, predict_n
+  n_eval: 100    # Number of sets to generate at each evaluation
+
+Encoder:
+  initial_mlp_layers: 1
+  hidden_initial: 64
+  hidden: 32
+  use_bn: True
+  use_residual: True
+  layers: ["MultiHeadAttention"]
+  aggregator: "PNA"
+  final_mlp_layers: 2
+  hidden_final: 128
+
+
+SetGenerator:
+  name: "FirstKGenerator"
+  learn_from_latent: True
+  max_n: 50
+  n_distribution: None
+  num_mlp_layers: 3
+  hidden: 32
+
+
+Decoder:
+  initial_mlp_layers: 2
+  hidden_initial: 128
+  layers: ["MultiHeadAttention"]
+  hidden: 32
+  final_mlp_layers: 2
+  hidden_final: 128
+  use_bn: True
+  use_residual: True
+
+
+Modules:
+  MLP:
+    num_mlp_layers: 2
+    hidden_mlp: 32
+  Transformer:
+    n_heads: 4
+    head_width: 32
+    dim_feedforward: 128
+    residuals: False
+
+  Set2Set:
+    processing_steps: 20
+
+  PNA:
+    average_n: 40
+
+
+
+
+

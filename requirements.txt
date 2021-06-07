@@ -1,0 +1,18 @@
+# local packages
+-e .
+
+# depedencies
+geoopt
+scikit-learn
+se3_transformer_pytorch
+tensorboard
+networkx
+numpy
+torch
+pyyaml
+easydict
+wandb
+tensorflow # for tensorboard
+plotly
+scikit-tda
+tqdm

@@ -143,6 +143,31 @@ def train_one_epoch(
     # torch.cuda.empty_cache()
     return loss
 
+def start_training(model,optimizer,epochs,criterion,batch_size,scheduler,device,batch_f,batch_f_kwargs,center_output,use_wandb):
+    if use_wandb:
+        wrun = wandb.init("se3_runs")
+        config = wandb.config
+        config.criterion = criterion
+        config.optimizer = optimizer
+        config.lr = lr
+        config.batch_f = batch_f
+        config.batch_f_kwargs = batch_f_kwargs
+        config.center_input = center_input
+        config.center_target = center_target
+        config.center_output = center_output
+    for epoch in range(epochs):
+
+        loss = train_one_epoch(model=model,
+                               use_wandb=use_wandb,
+                               optimizer=optimizer,
+                               epoch=epoch,
+                               criterion=criterion,
+                               batch_size=batch_size,
+                               scheduler=scheduler,
+                               device=device,
+                               batch_f=batch_f,
+                               batch_f_kwargs=batch_f_kwargs,
+                               center_output=center_output)
 
 def get_predictions(transformer, batch_f, batch_f_kwargs, center_output):
 

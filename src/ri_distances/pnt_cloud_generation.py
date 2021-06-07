@@ -44,12 +44,12 @@ def center(batch):
     """
     Center batch to have a barycenter around 0
     """
-    mean_input = batch.mean(axis=1).unsqueeze(1)
-    return batch - mean_input
+    if len(batch.shape) == 3:
+        mean_input = batch.mean(axis=1).unsqueeze(1)
+        return batch - mean_input
+    else:
+        return batch - batch.mean(axis=0)
 
-
-def center2d(X):
-    return X - X.mean(axis=0)
 
 
 def get_points_on_sphere(N):

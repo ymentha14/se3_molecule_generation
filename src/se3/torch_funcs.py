@@ -5,6 +5,7 @@ import wandb
 from numpy.linalg import norm
 from se3_transformer_pytorch import SE3Transformer
 from se3_transformer_pytorch.irr_repr import rot
+from src.ri_distances.pnt_cloud_generation import center
 from src.se3.visualization import viz_point_cloud
 
 plt.style.use('ggplot')
@@ -65,6 +66,8 @@ def get_batch(f, batch_f_kwargs={}, batch_size=10):
     """
     batch_points, batch_targets = zip(*[f(**batch_f_kwargs)
                                         for i in range(batch_size)])
+    batch_points = [to_torch_tensor(i) for i in batch_points]
+    batch_targets = [to_torch_tensor(i) for i in batch_targets]
     return torch.cat(batch_points), torch.cat(batch_targets)
 
 

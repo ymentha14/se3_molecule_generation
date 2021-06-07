@@ -1,5 +1,7 @@
 """Point cloud generation functions to test benchmarks of rotation invariant functions
 """
+from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 import torch
@@ -186,6 +188,32 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
     xline = np.sin(zline * 4 * np.pi)
     yline = np.cos(zline * 4 * np.pi)
     return np.array([xline, yline, zline]).transpose()
+@dataclass(frozen=True)
+class SpiralGenerator:
+    spiral_amp : float=1.0
+    scaling : float=1.0
+    shift : float=0.0
+    asym : bool=False
+    centering : bool=False
+
+    def __post_init__(self):
+        assert(not (self.centering and self.shift!=0))
+
+    @lru_cache(None)
+    def generate(self,):
+        if self.asym:
+            points = get_asym_spiral(spiral_amp=self.spiral_amp)
+        else:
+            points = get_spiral(spiral_amp=self.spiral_amp)
+
+        [xline, yline, zline] = points.transpose()
+        zline *= self.scaling
+        zline += self.shift
+        points = np.array([xline, yline, zline ]).transpose()
+        if self.centering:
+            points = center(points)
+        return points
+
 
 def get_custom_spiral(spiral_amp=1.0,scaling=1.0,shift=0.0,asym=False,centering=False):
     assert(not (centering and shift!=0))

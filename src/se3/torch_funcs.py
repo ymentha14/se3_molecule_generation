@@ -33,7 +33,7 @@ def predict(model, input_tens):
     return predicted_deltas_tens
 
 
-def get_batch(f, batch_f_kwargs={}, batch_size=10):
+def get_batch(src_gen,trgt_gen, batch_size=10):
     """
     Return a batch of batch_size of results as in get_rotated_src_target_spirals
 
@@ -45,7 +45,8 @@ def get_batch(f, batch_f_kwargs={}, batch_size=10):
       [torch.tensor,torch.tensor]: src and target batches
 
     """
-    batch_points, batch_targets = zip(*[f(**batch_f_kwargs) for i in range(batch_size)])
+    batch_points = [src_gen.generate() for _ in range(batch_size)]
+    batch_targets = [trgt_gen.generate() for _ in range(batch_size)]
     batch_points = [to_torch_tensor(i) for i in batch_points]
     batch_targets = [to_torch_tensor(i) for i in batch_targets]
     return torch.cat(batch_points), torch.cat(batch_targets)
@@ -95,10 +96,10 @@ def train_one_epoch(
     batch_size,
     scheduler,
     device,
-    batch_f,
+    src_gen,
+    trgt_gen,
     use_wandb=True,
     tb_writer=None,
-    batch_f_kwargs={},
     center_output=False,
 ):
     """
@@ -107,9 +108,7 @@ def train_one_epoch(
     model.train()
     print(f"Epoch {epoch}")
     # generate batch
-    batch_points, batch_target_points = get_batch(
-        batch_f, batch_f_kwargs, batch_size=batch_size
-    )
+    batch_points, batch_target_points = get_batch(src_gen=src_gen,trgt_gen=trgt_gen, batch_size=batch_size)
     batch_points = batch_points.to(device)
     batch_target_points = batch_target_points.to(device)
 
@@ -143,15 +142,15 @@ def train_one_epoch(
     # torch.cuda.empty_cache()
     return loss
 
-def start_training(model,optimizer,epochs,criterion,batch_size,scheduler,device,batch_f,batch_f_kwargs,center_output,use_wandb):
+def start_training(model,optimizer,epochs,criterion,batch_size,scheduler,device,src_gen,trgt_gen,center_output,use_wandb):
     if use_wandb:
         wrun = wandb.init("se3_runs")
         config = wandb.config
         config.criterion = criterion
         config.optimizer = optimizer
         config.lr = lr
-        config.batch_f = batch_f
-        config.batch_f_kwargs = batch_f_kwargs
+        config.src_gen = src_gen
+        config.trgt_gen = trgt_gen
         config.center_input = center_input
         config.center_target = center_target
         config.center_output = center_output
@@ -165,8 +164,8 @@ def start_training(model,optimizer,epochs,criterion,batch_size,scheduler,device,
                                batch_size=batch_size,
                                scheduler=scheduler,
                                device=device,
-                               batch_f=batch_f,
-                               batch_f_kwargs=batch_f_kwargs,
+                               src_gen=src_gen,
+                               trgt_gen=trgt_gen,
                                center_output=center_output)
 
 def get_predictions(transformer, batch_f, batch_f_kwargs, center_output):

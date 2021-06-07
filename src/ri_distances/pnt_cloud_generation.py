@@ -124,7 +124,7 @@ def get_gaussian_point_cloud(N_pts):
 # Spiral Point cloud
 
 
-def get_spiral(spiral_amp=1.0, N_pts=40):
+def get_asym_spiral(spiral_amp=1.0, N_pts=40):
     """
     Generate a spiral with the given amplitude
 
@@ -139,21 +139,39 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
     yline = [(i+4)*np.cos(i)/10 for i in zline * 4 * np.pi]
     return np.array([xline, yline, zline]).transpose()
 
+def get_spiral(spiral_amp=1.0, N_pts=40):
+    """
+    Generate a spiral with the given amplitude
 
-def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5):
+    Args:
+        spiral_amp (float, optional): spiral amplitude
+
+    Returns:
+        np.array: spiral point cloud
+    """
+    zline = np.linspace(0, spiral_amp, 40)
+    xline = np.sin(zline * 4 * np.pi)
+    yline = np.cos(zline * 4 * np.pi)
+    return np.array([xline, yline, zline]).transpose()
+
+
+def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False):
     """
     Return vertical src spiral cloud point and its vertically shifted version.
     """
     # torch.set_default_dtype(torch.float64) # works best in float64
-    points = get_spiral(spiral_amp=spiral_amp)
-    [xline, yline, zline] = points
+    if asym:
+        points = get_asym_spiral(spiral_amp=spiral_amp)
+    else:
+        points = get_spiral(spiral_amp=spiral_amp)
+    [xline, yline, zline] = points.transpose()
     target_points = np.array([xline, yline, (zline+shift)]).transpose()
     return points, target_points
 
 
 def get_src_scaled_spirals(spiral_amp=1.0, z_scale=3):
     points = get_spiral(spiral_amp=spiral_amp)
-    [xline, yline, zline] = points
+    [xline, yline, zline] = points.transpose()
     target_points = np.array([xline, yline, zline * z_scale]).transpose()
     return points, target_points
 

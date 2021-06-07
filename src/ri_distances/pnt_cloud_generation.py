@@ -165,8 +165,8 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
         np.array: spiral point cloud
     """
     zline = np.linspace(0, spiral_amp, 40)
-    xline = np.sin(zline * 4 * np.pi)
-    yline = np.cos(zline * 4 * np.pi)
+    xline = np.sin(zline * 4 * np.pi) / 10
+    yline = np.cos(zline * 4 * np.pi) / 10
     return np.array([xline, yline, zline]).transpose()
 
 

@@ -5,36 +5,16 @@ import wandb
 from numpy.linalg import norm
 from se3_transformer_pytorch import SE3Transformer
 from se3_transformer_pytorch.irr_repr import rot
-from src.ri_distances.pnt_cloud_generation import center
+from src.ri_distances.pnt_cloud_generation import (center, to_numpy_array,
+                                                   to_torch_tensor)
 from src.se3.visualization import viz_point_cloud
 
-plt.style.use('ggplot')
+plt.style.use("ggplot")
 
-device = torch.device(
-    'cuda') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 torch.set_default_dtype(torch.float32)
 
 # Type conversion functions
-
-
-
-
-
-
-def to_torch_tensor(np_array):
-    """
-    convert a numpy array to a torch tensor by putting it to the appropriate type
-    and dimension
-    """
-    return torch.tensor(np_array).unsqueeze(0).to(torch.float32)
-
-
-def to_numpy_array(torch_tensor):
-    """
-    convert a torch tensor to a numpy array by putting it to the appropriate type
-    and dimension
-    """
-    return torch_tensor.squeeze().detach().numpy()
 
 
 def predict(model, input_tens):
@@ -64,8 +44,7 @@ def get_batch(f, batch_f_kwargs={}, batch_size=10):
       [torch.tensor,torch.tensor]: src and target batches
 
     """
-    batch_points, batch_targets = zip(*[f(**batch_f_kwargs)
-                                        for i in range(batch_size)])
+    batch_points, batch_targets = zip(*[f(**batch_f_kwargs) for i in range(batch_size)])
     batch_points = [to_torch_tensor(i) for i in batch_points]
     batch_targets = [to_torch_tensor(i) for i in batch_targets]
     return torch.cat(batch_points), torch.cat(batch_targets)
@@ -100,41 +79,40 @@ def get_r1_src_target(k_in=2, k_out=1):
     Returns the r1 experiment src and targets tensors
     """
     # torch.set_default_dtype(torch.float64) # works best in float64
-    points_tens = torch.tensor(
-        [[-k_in, 0, 0], [k_in, 0, 0]]).unsqueeze(0).float()
-    target_points_tens = torch.tensor(
-        [[0, -k_out, 0], [0, k_out, 0]]).unsqueeze(0).float()
+    points_tens = torch.tensor([[-k_in, 0, 0], [k_in, 0, 0]]).unsqueeze(0).float()
+    target_points_tens = (
+        torch.tensor([[0, -k_out, 0], [0, k_out, 0]]).unsqueeze(0).float()
+    )
     return points_tens, target_points_tens
 
 
-
-
-def train_one_epoch(model,
-                    optimizer,
-                    epoch,
-                    criterion,
-                    batch_size,
-                    scheduler,
-                    device,
-                    batch_f,
-                    use_wandb=True,
-                    tb_writer=None,
-                    batch_f_kwargs={},
-                    center_input=False,
-                    center_target=False,
-                    center_output=False):
+def train_one_epoch(
+    model,
+    optimizer,
+    epoch,
+    criterion,
+    batch_size,
+    scheduler,
+    device,
+    batch_f,
+    use_wandb=True,
+    tb_writer=None,
+    batch_f_kwargs={},
+    center_input=False,
+    center_target=False,
+    center_output=False,
+):
     """
     Train the model passed in parameter for one batch (epoch)
     """
     model.train()
     print(f"Epoch {epoch}")
     # generate batch
-    uncentered_batch_points, uncentered_batch_targets_points = get_batch(batch_f,
-                                                                         batch_f_kwargs,
-                                                                         batch_size=batch_size)
+    uncentered_batch_points, uncentered_batch_targets_points = get_batch(
+        batch_f, batch_f_kwargs, batch_size=batch_size
+    )
     uncentered_batch_points = uncentered_batch_points.to(device)
-    uncentered_batch_targets_points = uncentered_batch_targets_points.to(
-        device)
+    uncentered_batch_targets_points = uncentered_batch_targets_points.to(device)
 
     if center_input:
         batch_points = center(uncentered_batch_points)
@@ -159,7 +137,7 @@ def train_one_epoch(model,
 
     # Tensorboard logger
     if tb_writer is not None:
-        tb_writer.add_scalar('Loss/train', loss.item(), epoch)
+        tb_writer.add_scalar("Loss/train", loss.item(), epoch)
 
     # Wandb logger
     if use_wandb:
@@ -172,7 +150,7 @@ def train_one_epoch(model,
     optimizer.zero_grad()
 
     print(f"Loss (cntrd prediction vs cntrd target): {loss}")
-    #del predicted_deltas, predicted_points, loss, dist, uncentered_batch_points, uncentered_batch_targets_points, feats, batch_target_points, batch_points
+    # del predicted_deltas, predicted_points, loss, dist, uncentered_batch_points, uncentered_batch_targets_points, feats, batch_target_points, batch_points
     # torch.cuda.empty_cache()
     return loss
 
@@ -180,16 +158,20 @@ def train_one_epoch(model,
 def visualize_prediction(transformer, batch_f, batch_f_kwargs, centering):
 
     points_raw, target_points_raw = batch_f(**batch_f_kwargs)
-    points_tens_raw, target_points_tens_raw = to_torch_tensor(points_raw),to_torch_tensor(target_points_raw)
-    #points_tens_raw,target_points_tens_raw = rotate(points_tens_raw,target_points_tens_raw)
+    points_tens_raw, target_points_tens_raw = to_torch_tensor(
+        points_raw
+    ), to_torch_tensor(target_points_raw)
+    # points_tens_raw,target_points_tens_raw = rotate(points_tens_raw,target_points_tens_raw)
     if centering:
-        points_tens, target_points_tens = center(
-            points_tens_raw), center(target_points_tens_raw)
+        points_tens, target_points_tens = center(points_tens_raw), center(
+            target_points_tens_raw
+        )
     else:
         points_tens, target_points_tens = points_tens_raw, target_points_tens_raw
 
-    feats = torch.ones(
-        points_tens.shape[0], points_tens.shape[1], 1).double().to(device)
+    feats = (
+        torch.ones(points_tens.shape[0], points_tens.shape[1], 1).double().to(device)
+    )
 
     predicted_deltas_tens = predict(transformer, points_tens)
 
@@ -200,11 +182,13 @@ def visualize_prediction(transformer, batch_f, batch_f_kwargs, centering):
     points = to_numpy_array(points_tens)
     target_points = to_numpy_array(target_points_tens)
     predicted_points = to_numpy_array(predicted_points_tens)
-    return viz_point_cloud([(points, 'src'), (target_points, 'trgt')], [
-        (points, 'src'), (predicted_points, 'pred')])
+    return viz_point_cloud(
+        [(points, "src"), (target_points, "trgt")],
+        [(points, "src"), (predicted_points, "pred")],
+    )
 
 
-class MachineScaleChecker():
+class MachineScaleChecker:
     """
     Class to check whether the equivariances at are machine scale or not
     """
@@ -216,7 +200,9 @@ class MachineScaleChecker():
         self.shift = 500
         self.scale = 1000
 
-    def get_machine_scale_error(self,):
+    def get_machine_scale_error(
+        self,
+    ):
         """
         Check if the rotation equivariance is at machine scale
 
@@ -229,8 +215,7 @@ class MachineScaleChecker():
         """
 
         # input point cloud
-        points_tens = torch.rand(1, self.N, 3) * \
-            self.scale  # we scale the noise
+        points_tens = torch.rand(1, self.N, 3) * self.scale  # we scale the noise
         # and shift the point cloud
         points_tens += torch.tensor([self.shift, self.shift, self.shift])
 

@@ -2,11 +2,26 @@
 """
 
 import numpy as np
+import torch
 from numpy.linalg import norm
 from scipy.spatial.transform import Rotation
 from scipy.spatial.transform import Rotation as R
-from src.se3.torch_funcs import to_numpy_array, to_torch_tensor
 
+
+def to_torch_tensor(np_array):
+    """
+    convert a numpy array to a torch tensor by putting it to the appropriate type
+    and dimension
+    """
+    return torch.tensor(np_array).unsqueeze(0).to(torch.float32)
+
+
+def to_numpy_array(torch_tensor):
+    """
+    convert a torch tensor to a numpy array by putting it to the appropriate type
+    and dimension
+    """
+    return torch_tensor.squeeze().detach().numpy()
 
 # Rotation and Permutation matrices
 def generate_permutation_matrix(N):

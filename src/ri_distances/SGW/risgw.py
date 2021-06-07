@@ -12,10 +12,10 @@ import geoopt
 import numpy as np
 import torch
 import torch.nn.functional as F
+from src.ri_distances.pnt_cloud_generation import to_torch_tensor
 from src.ri_distances.rotation_predictor import RotationPredictor
 from src.ri_distances.SGW.sgw import get_P
 from src.ri_distances.SGW.sgw_pytorch import sgw_gpu
-from src.se3.torch_funcs import to_torch_tensor
 from torch.autograd import Function
 from tqdm import trange
 

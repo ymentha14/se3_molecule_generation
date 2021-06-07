@@ -144,7 +144,7 @@ def train_one_epoch(
     return loss
 
 
-def visualize_prediction(transformer, batch_f, batch_f_kwargs, center_output):
+def get_predictions(transformer, batch_f, batch_f_kwargs, center_output):
 
     points_raw, target_points_raw = batch_f(**batch_f_kwargs)
     points_tens, target_points_tens = to_torch_tensor(
@@ -164,6 +164,9 @@ def visualize_prediction(transformer, batch_f, batch_f_kwargs, center_output):
     points = to_numpy_array(points_tens)
     target_points = to_numpy_array(target_points_tens)
     predicted_points = to_numpy_array(predicted_points_tens)
+    return points, target_points, predicted_points
+
+def visualize_prediction(points, target_points, predicted_points):
     return viz_point_cloud(
         [(points, "src"), (target_points, "trgt")],
         [(points, "src"), (predicted_points, "pred")],

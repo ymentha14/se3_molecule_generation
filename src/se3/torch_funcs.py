@@ -168,9 +168,10 @@ def start_training(model,lr,optimizer,epochs,criterion,batch_size,scheduler,devi
                                trgt_gen=trgt_gen,
                                center_output=center_output)
 
-def get_predictions(transformer, batch_f, batch_f_kwargs, center_output):
+def get_predictions(transformer, src_gen,trgt_gen, center_output):
 
-    points_raw, target_points_raw = batch_f(**batch_f_kwargs)
+    points_raw = src_gen.generate()
+    target_points_raw = trgt_gen.generate()
     points_tens, target_points_tens = to_torch_tensor(
         points_raw
     ), to_torch_tensor(target_points_raw)

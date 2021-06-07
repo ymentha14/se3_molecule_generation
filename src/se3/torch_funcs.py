@@ -142,7 +142,7 @@ def train_one_epoch(
     # torch.cuda.empty_cache()
     return loss
 
-def start_training(model,optimizer,epochs,criterion,batch_size,scheduler,device,src_gen,trgt_gen,center_output,use_wandb):
+def start_training(model,lr,optimizer,epochs,criterion,batch_size,scheduler,device,src_gen,trgt_gen,center_output,use_wandb):
     if use_wandb:
         wrun = wandb.init("se3_runs")
         config = wandb.config

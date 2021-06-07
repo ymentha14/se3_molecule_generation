@@ -5,7 +5,8 @@ import wandb
 from numpy.linalg import norm
 from se3_transformer_pytorch import SE3Transformer
 from se3_transformer_pytorch.irr_repr import rot
-from src.ri_distances.pnt_cloud_generation import (center, to_numpy_array,
+from src.ri_distances.pnt_cloud_generation import (center, center_batch,
+                                                   to_numpy_array,
                                                    to_torch_tensor)
 from src.se3.visualization import viz_point_cloud
 
@@ -117,7 +118,7 @@ def train_one_epoch(
     feats = feats.to(device)
     predicted_deltas = model(feats, batch_points, return_type=1)
     if center_output:
-        predicted_deltas = center(predicted_deltas)
+        predicted_deltas = center_batch(predicted_deltas)
     predicted_deltas = predicted_deltas.reshape(batch_target_points.shape)
     predicted_points = batch_points + predicted_deltas
 
@@ -137,34 +138,27 @@ def train_one_epoch(
     scheduler.step(loss)
     optimizer.zero_grad()
 
-    print(f"Loss (cntrd prediction vs cntrd target): {loss}")
+    print(f"Loss: {loss}")
     # del predicted_deltas, predicted_points, loss, dist, uncentered_batch_points, uncentered_batch_targets_points, feats, batch_target_points, batch_points
     # torch.cuda.empty_cache()
     return loss
 
 
-def visualize_prediction(transformer, batch_f, batch_f_kwargs, centering):
+def visualize_prediction(transformer, batch_f, batch_f_kwargs, center_output):
 
     points_raw, target_points_raw = batch_f(**batch_f_kwargs)
-    points_tens_raw, target_points_tens_raw = to_torch_tensor(
+    points_tens, target_points_tens = to_torch_tensor(
         points_raw
     ), to_torch_tensor(target_points_raw)
     # points_tens_raw,target_points_tens_raw = rotate(points_tens_raw,target_points_tens_raw)
-    if centering:
-        points_tens, target_points_tens = center(points_tens_raw), center(
-            target_points_tens_raw
-        )
-    else:
-        points_tens, target_points_tens = points_tens_raw, target_points_tens_raw
-
     feats = (
         torch.ones(points_tens.shape[0], points_tens.shape[1], 1).double().to(device)
     )
 
     predicted_deltas_tens = predict(transformer, points_tens)
 
-    if centering:
-        predicted_deltas_tens = center(predicted_deltas_tens)
+    if center_output:
+        predicted_deltas_tens = center_batch(predicted_deltas_tens)
     predicted_points_tens = points_tens + predicted_deltas_tens
 
     points = to_numpy_array(points_tens)

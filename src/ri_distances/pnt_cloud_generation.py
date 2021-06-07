@@ -23,6 +23,7 @@ def to_numpy_array(torch_tensor):
     """
     return torch_tensor.squeeze().detach().numpy()
 
+
 # Rotation and Permutation matrices
 def generate_permutation_matrix(N):
     """
@@ -44,27 +45,38 @@ def generate_rotation_matrix(theta=None, axis=None):
     return Rotation.from_rotvec(theta * axis).as_matrix()
 
 
-
 def rotate(*args):
     """
     Return the rotated version of each tensor passed in parameter using the same rotation
     matrix
+
     """
     Q = generate_rotation_matrix()
     return [points_tens @ Q for points_tens in args]
 
-# Centering
 
-def center(batch):
+# Centering
+def center_batch(batch):
+    """center a batch
+
+    Args:
+        batch (torch.tensor): [n_batch x N_points x 1 x 3]
+
+    Returns:
+        [type]: [description]
+    """
+    mean_input = batch.mean(axis=1).unsqueeze(1)
+    return batch - mean_input
+
+
+def center(sample):
     """
     Center batch to have a barycenter around 0
-    """
-    if len(batch.shape) == 4
-        mean_input = batch.mean(axis=1).unsqueeze(1)
-        return batch - mean_input
-    else:
-        return batch - batch.mean(axis=0)
 
+    Args:
+        sample (np.array): N x 3 sample
+    """
+    return sample - sample.mean(axis=0)
 
 
 def get_points_on_sphere(N):
@@ -74,13 +86,13 @@ def get_points_on_sphere(N):
     Code by Chris Colbert from the numpy-discussion list.
     """
     phi = (1 + np.sqrt(5)) / 2  # the golden ratio
-    long_incr = 2*np.pi / phi   # how much to increment the longitude
+    long_incr = 2 * np.pi / phi  # how much to increment the longitude
 
-    dz = 2.0 / float(N)         # a unit sphere has diameter 2
-    bands = np.arange(N)        # each band will have one point placed on it
-    z = bands * dz - 1 + (dz/2)  # the height z of each band/point
-    r = np.sqrt(1 - z*z)        # project onto xy-plane
-    az = bands * long_incr      # azimuthal angle of point modulo 2 pi
+    dz = 2.0 / float(N)  # a unit sphere has diameter 2
+    bands = np.arange(N)  # each band will have one point placed on it
+    z = bands * dz - 1 + (dz / 2)  # the height z of each band/point
+    r = np.sqrt(1 - z * z)  # project onto xy-plane
+    az = bands * long_incr  # azimuthal angle of point modulo 2 pi
     x = r * np.cos(az)
     y = r * np.sin(az)
     return np.array((x, y, z)).transpose()
@@ -90,7 +102,7 @@ def get_angle(u, v):
     """
     Return the angle between 3d vectors u and v
     """
-    cos_angle = np.dot(u, v)/norm(u)/norm(v)
+    cos_angle = np.dot(u, v) / norm(u) / norm(v)
     return np.arccos(np.clip(cos_angle, -1, 1))
 
 
@@ -111,9 +123,12 @@ def get_n_regular_rotations(N):
     # https://math.stackexchange.com/questions/2754627/rotation-matrices-between-two-points-on-a-sphere
     thetas = [get_angle(ref_vec, v) for v in reg_points]
     cross_vecs = np.cross(ref_vec, reg_points)
-    rotations = [(R.from_rotvec(theta*cross_vec).as_matrix())
-                 for theta, cross_vec in zip(thetas, cross_vecs)]
+    rotations = [
+        (R.from_rotvec(theta * cross_vec).as_matrix())
+        for theta, cross_vec in zip(thetas, cross_vecs)
+    ]
     return rotations
+
 
 # Point Cloud Generation
 
@@ -128,13 +143,15 @@ def generate_target(src, theta=None, noise_factor=0.0, permute=True):
     target = src @ Q
     target = P @ target
     target += np.random.randn(*target.shape) * noise_factor
-    return Q,P,target
+    return Q, P, target
+
 
 # Gaussian Point cloud
 
 
 def get_gaussian_point_cloud(N_pts):
     return np.random.rand(N_pts, 3)
+
 
 # Spiral Point cloud
 
@@ -150,9 +167,10 @@ def get_asym_spiral(spiral_amp=1.0, N_pts=40):
         np.array: spiral point cloud
     """
     zline = np.linspace(0, spiral_amp, N_pts)
-    xline = [(i+4)*np.sin(i)/10 for i in zline * 4 * np.pi]
-    yline = [(i+4)*np.cos(i)/10 for i in zline * 4 * np.pi]
+    xline = [(i + 4) * np.sin(i) / 10 for i in zline * 4 * np.pi]
+    yline = [(i + 4) * np.cos(i) / 10 for i in zline * 4 * np.pi]
     return np.array([xline, yline, zline]).transpose()
+
 
 def get_spiral(spiral_amp=1.0, N_pts=40):
     """
@@ -165,12 +183,14 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
         np.array: spiral point cloud
     """
     zline = np.linspace(0, spiral_amp, 40)
-    xline = np.sin(zline * 4 * np.pi) / 10
-    yline = np.cos(zline * 4 * np.pi) / 10
+    xline = np.sin(zline * 4 * np.pi)
+    yline = np.cos(zline * 4 * np.pi)
     return np.array([xline, yline, zline]).transpose()
 
 
-def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False,center_input=False,center_target=False):
+def get_src_shifted_spirals(
+    spiral_amp=1.0, shift=0.5, asym=False, center_input=False, center_target=False
+):
     """
     Return vertical src spiral cloud point and its vertically shifted version.
     """
@@ -180,7 +200,7 @@ def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False,center_input=Fa
     else:
         points = get_spiral(spiral_amp=spiral_amp)
     [xline, yline, zline] = points.transpose()
-    target_points = np.array([xline, yline, (zline+shift)]).transpose()
+    target_points = np.array([xline, yline, (zline + shift)]).transpose()
     if center_input:
         points = center(points)
     if center_target:
@@ -188,7 +208,9 @@ def get_src_shifted_spirals(spiral_amp=1.0, shift=0.5,asym=False,center_input=Fa
     return points, target_points
 
 
-def get_src_scaled_spirals(spiral_amp=1.0, z_scale=3,asym=False,center_input=False,center_target=False):
+def get_src_scaled_spirals(
+    spiral_amp=1.0, z_scale=3, asym=False, center_input=False, center_target=False
+):
     if asym:
         points = get_asym_spiral(spiral_amp=spiral_amp)
     else:

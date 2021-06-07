@@ -2,6 +2,7 @@
 -e .
 
 # depedencies
+ipykernel
 geoopt
 scikit-learn
 se3_transformer_pytorch

@@ -28,6 +28,8 @@ def plot_r1_exp(points, target_points, pred_points, axes):
 
 
 def plot_coordinates(target_points, predicted_points, coor_str='z'):
+    target_points = target_points.transpose()
+    predicted_points = predicted_points.transpose()
     coor_2_ax = {'x': 0, 'y': 1, 'z': 2}
     coor = coor_2_ax[coor_str]
 

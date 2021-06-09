@@ -19,7 +19,7 @@ plt.style.use('ggplot')
 torch.set_default_dtype(torch.float32) # works best in float64
 
 
-def run(i,src_kwargs,trgt_kwargs,quick=False):
+def run(i,src_kwargs,trgt_kwargs,quick=False,use_wandb=False):
     """Execute a run of SE(3) transformer overfit given the parameters passed for the
     source and target point clouds
 
@@ -30,11 +30,9 @@ def run(i,src_kwargs,trgt_kwargs,quick=False):
         quick (bool): debugging option
     """
     if quick:
-        use_wandb = False
         epochs = 2
         batch_size = 1
     else:
-        use_wandb = True
         epochs = 100
         batch_size = 4
 
@@ -71,6 +69,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-q', '--quick', help='Quick option for debugging',action='store_true')
+    parser.add_argument('-w', '--wandb', help='Whether to log metrics in wandb',action='store_true')
     args = parser.parse_args()
 
     if device.type == 'cpu':
@@ -83,8 +82,8 @@ def main():
                     ({"centering":True,"asym":True},{"asym":True,"centering":True,"width_factor":1.5}),
                     ({"asym":True,"shift":0.3},{"asym":True,"shift":1.0})]
 
-    for i,(src_kwargs,trgt_kwargs) in tqdm(enumerate(expes_kwargs),desc="SE(3) overfits experiments"):
-        run(i,src_kwargs,trgt_kwargs,args.quick)
+    for i,(src_kwargs,trgt_kwargs) in enumerate(tqdm(expes_kwargs,desc="SE(3) overfits experiments",leave=False)):
+        run(i,src_kwargs,trgt_kwargs,args.quick,args.wandb)
         sys.stdout.flush()
 
 

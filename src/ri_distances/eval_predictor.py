@@ -84,7 +84,7 @@ def plot_metric(n_points, metric_ts, metric_name,ax):
     ax.set_ylabel(f'{metric_name} difference')
 
 
-def display_predictor_metrics_vs_pnt_cloud_size(results):
+def display_predictor_metrics_vs_pnt_cloud_size(results,fig,axes):
     """
     Display a given predictor metrics, that is, its SGW or MSE and time
     vs number of point cloud
@@ -104,13 +104,11 @@ def display_predictor_metrics_vs_pnt_cloud_size(results):
     times_ts = np.array(data['time'].tolist())
     MSE_ts = np.array(data['metric'].tolist())
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     fig.suptitle(
         f"Func={fname},N_runs={N_runs},permute={p.permute},noise={p.noise_factor}\n{predictor}",
         fontsize=15)
     plot_time(n_points, times_ts, axes[1])
     plot_metric(n_points, MSE_ts, metric_name=p.metric_name,ax=axes[0])
-    return fig
 
 
 def main():

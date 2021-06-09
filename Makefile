@@ -14,6 +14,10 @@ PYTHON_INTERPRETER = python3
 # Reproducibillity
 #################################################################################
 
+# reproduce the se3 appendix experiment plots
+se3_expes:
+	@python src/se3/se3_expes.py
+
 
 # reproduce the loss vs time figure
 loss_vs_time:

@@ -3,13 +3,16 @@
 <br />
   <h1 align="center">Towards an efficient loss function for SE(3) equivariant molecule generation</h1>
 <p align="center">
-  <!-- <a href="https://github.com/ymentha14/Emoji Dataset"> -->
    <p align="center">
     An exploration of metrics for equivariant NN based molecule generation
   </p>
+
   <p align="center" width="100%">
     <img src="images/logo.png" alt="Logo" width="33%" height="">
-</p>
+  </p>
+
+  <p align="center" style="color:grey;font-size:9px;">Image Copyright: Matt DesLauries, Neural Colors, 2019</p>
+
   </a>
 
 </p>

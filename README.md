@@ -7,7 +7,9 @@
    <p align="center">
     An exploration of metrics for equivariant NN based molecule generation
   </p>
-    <img src="images/logo.png" alt="Logo" width="" height="">
+  <p align="center" width="100%">
+    <img src="images/logo.png" alt="Logo" width="33%" height="">
+</p>
   </a>
 
 </p>
@@ -15,18 +17,17 @@
 ## Table of Content
 
 - [About the Project](#about-the-project)
-- [Dataset Specifications](#dataset-specifications)
 - [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+- [Reproducibility](#reproducibility)
   * [Notebooks](#notebooks)
-  * [Dataset Generation](#dataset-generation)
-    + [Dataset ( _`RESULTS_DIR/data/dataset`_ )](#dataset-----results-dir-data-dataset----)
-    + [Demographic Information](#demographic-information)
-  * [Figures and embeddings generation](#figures-and-embeddings-generation)
-  * [Notebooks](#notebooks-1)
+  * [Report Figures](#report-figures)
+    + [Point cloud aligner algorithm comparison](#point-cloud-aligner-algorithm-comparison)
+    + [ICP scaling](#icp-scaling)
+    + [SE(3) Appendix Figures](#se-3--appendix-figures)
 - [Project Structure](#project-structure)
 - [License](#license)
 - [Contact](#contact)
-
 
 
 
@@ -39,21 +40,40 @@ Equivariant neural networks such as the [SE(3) transformer](https://arxiv.org/ab
 ## Getting Started
 ### Prerequisites
 * `docker`: In order to guarantee results reproducibility, this project runs on docker: after having pulled the latest version of the project, run in the root of the repo:
+* alternatively you can use a pyton virtualenv
 
+### Docker
 Run:
 ```
 make build_image
 ```
 this will generate the docker image the project runs on: `se3_equiv` (it might take a few minutes).
 
+To determine which host directory the container will write in run:
+```
+export SE3_RES_DIR=/foo/bar/dir
+```
+where `/foo/bar/dir` is an absolute path pointing to the directory meant to receive the results.
+
 Once this is done, you can now simply start a container by running:
 ```
 make run_container
 ```
 This will start a bash shell running in the container: from there you'll be able to run several commands to reproduce the figures present in the report. </br>
-### NB
+__NB__
 * The port 8888 is forwarded for jupyter notebooks and visualizations purpose
 * The `results` directory is mounted as a volume: every modification in this directory will indeed reflect in the host machine. In particular, this is where the figures of the report are generated.
+
+### Python virtual env
+If you prefer using a virtualenv, run
+
+```
+make create_env
+source env/bin/activate
+make requirements
+```
+This should respectively create, activate and install the requirements along with the jupyter kernel necessary to run the commands we will see in the next sections.
+
 
 ## Reproducibility
 
@@ -111,7 +131,35 @@ As the training of an SE(3) transformer can be relatively costly even on such sm
 ## Project Structure
 ------------
     .
-
+    ├── Dockerfile
+    ├── env # virutalenv
+    ├── images # images for the current README.md
+    ├── Makefile
+    ├── models # checkpoints for ICP and RISGW generated data
+    ├── notebooks
+    │   ├── 3d_pts_alignment.ipynb # Exploration of the 3d point alignments algorithms
+    │   ├── bunny_viz.ipynb
+    │   └── se3.ipynb # Chronological exploration of the SE(3) transformer experiments
+    ├── README.md
+    ├── requirements.txt
+    ├── results # directory where the model generates figures
+    ├── setup.py # allows to install own code as local python package
+    └── src # source code
+        ├── paths.py # useful paths
+        ├── ri_distances
+        │   ├── eval_data_param.py
+        │   ├── eval_predictor.py
+        │   ├── icp # icp package
+        │   ├── metrics.py
+        │   ├── pnt_cloud_generation.py
+        │   ├── rotation_predictor.py
+        │   └── SGW # SGW package
+        └── se3
+            ├── gpu.py
+            ├── se3_expes.py
+            ├── torch_funcs.py
+            ├── utils.py
+            └── visualization.py
 --------
 
 

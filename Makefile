@@ -14,9 +14,6 @@ PYTHON_INTERPRETER = python3
 # Reproducibillity
 #################################################################################
 
-# reproduce the se3 appendix experiment plots
-se3_expes:
-	@python src/se3/se3_expes.py
 
 # reproduce the loss vs time figure
 loss_vs_time:
@@ -25,6 +22,10 @@ loss_vs_time:
 # reproduce the ICP scalability figure
 icp_metrics:
 	@python src/ri_distances/eval_predictor.py -d='g' -N=15 -p -f=0.12 -m='sgw' -o='icp_metrics_2.png'
+
+# reproduce the se3 appendix experiment plots
+se3_expes:
+	@python src/se3/se3_expes.py
 
 # start a jupyter notebook for quick visualization of point alignment algorithm
 start_jupy:
@@ -45,7 +46,7 @@ create_env:
 requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
-
+	$(PYTHON_INTERPRETER) -m ipykernel install --user --name=molecule_env
 
 
 #################################################################################
@@ -58,9 +59,9 @@ build_image:
 
 
 # TODO: remove the mounted source
-docker_run:
+run_container:
 	@docker run -it \
-	-v `pwd`/results:/app/results \
+	-v ${SE3_RES_DIR}:/app/results \
 	-v `pwd`/src:/app/src \
 	-v `pwd`/Makefile:/app/Makefile \
 	-w /app \

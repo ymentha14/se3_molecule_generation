@@ -2,19 +2,20 @@
 -e .
 
 # depedencies
-ipykernel
-pandas
-geoopt
-scikit-learn
-se3_transformer_pytorch
-tensorboard
-networkx
-numpy
-torch
-pyyaml
-easydict
-wandb
-tensorflow # for tensorboard
-plotly
-scikit-tda
-tqdm
+ipykernel==5.5.5
+pandas==1.1.5
+geoopt==0.3.1
+scikit-learn==0.24.2
+se3-transformer-pytorch==0.8.7
+tensorboard==2.5.0
+networkx==2.5.1
+pygsp==0.5.1
+numpy==1.19.5
+torch==1.8.1
+PyYAML==5.4.1
+easydict==1.9
+wandb==0.10.31
+plotly==4.14.3
+jupyterlab
+matplotlib
+tqdm==4.61.0

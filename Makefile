@@ -14,14 +14,18 @@ PYTHON_INTERPRETER = python3
 # Reproducibillity
 #################################################################################
 
+
 # reproduce the loss vs time figure
 loss_vs_time:
 	@python src/ri_distances/eval_data_param.py  -d='g' -N=3 -p -f=0.02 -o="loss_vs_time"
 
-
 # reproduce the ICP scalability figure
 icp_metrics:
 	@python src/ri_distances/eval_predictor.py -d='g' -N=15 -p -f=0.12 -m='sgw' -o='icp_metrics_2.png'
+
+# start a jupyter notebook for quick visualization of point alignment algorithm
+start_jupy:
+	@jupyter lab --ip 0.0.0.0 --port 8888 --allow-root
 
 #################################################################################
 # Virtual Env
@@ -46,24 +50,22 @@ requirements:
 #################################################################################
 
 # build the explorer image
-# -f specifies
 docker_build:
-	@docker build \
-    -t <image_name> \
-    -f .
+	@docker build -t se3_equiv .
 
-# start a container of the image
-#-w workdir in container
-docker_run: check_config
-	@docker run --rm \
-	-p 8123:5000  \
-	--env-file ~/.dj/config \
-    -v src:/app/src \
-    -w /app \
-	-v <local_volume_dir>:<container_volume_dir> \
-	--user nobody \
-	-it \
-	--entrypoint python3 <image_name> <path_2_script>
+docker_run:
+	@docker run -it \
+	-v `pwd`/results:/app/results \
+	-w /app \
+	-e USER=$USER \
+	-p 8888:8888 \
+	se3_equiv \
+	/bin/bash
+# -v `pwd`/Makefile:/app/Makefile \
+# -v `pwd`/requirements.txt:/app/requirements.txt \
+# -v `pwd`/src:/app/src \
+# -v `pwd`/scripts:/app/scripts \
+# -v notebooks:/app/notebooks \
 
 # start a interactive shell in the image
 docker_shell:

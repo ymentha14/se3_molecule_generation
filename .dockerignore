@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# Allow files and folders with a pattern starting with !
+!README.md
+!requirements.txt
+!src
+!setup.py
+!dist
+!emoji2vec
+!Makefile
+!notebooks
+
+

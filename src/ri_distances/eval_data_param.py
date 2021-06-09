@@ -1,15 +1,11 @@
 """Evaluation functions for point alignment methods
 """
 import argparse
-import pdb
 import pickle as pk
-import sys
 import time
-import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from pdb import post_mortem
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +19,7 @@ from src.ri_distances.pnt_cloud_generation import (generate_permutation_matrix,
                                                    get_spiral)
 from src.ri_distances.rotation_predictor import MSE
 from src.ri_distances.SGW.risgw import RisgwPredictor
-from src.ri_distances.SGW.sgw_pytorch import sgw_gpu, sgw_gpu_np
+from src.ri_distances.SGW.sgw_pytorch import sgw_gpu_np
 from src.se3.visualization import viz_point_cloud
 from tqdm import tqdm, trange
 

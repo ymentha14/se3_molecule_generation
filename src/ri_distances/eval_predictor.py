@@ -5,28 +5,20 @@ in question scales in terms of time and performance (SGW or MSE)
 """
 
 import argparse
-import pdb
 import pickle as pk
-import sys
 import time
-import traceback
-from dataclasses import dataclass
 from pathlib import Path
-from pdb import post_mortem
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-import wandb
 from src.ri_distances.eval_data_param import DataParam, execute_run
 from src.ri_distances.icp.icp import IcpPredictor
 from src.ri_distances.pnt_cloud_generation import (get_gaussian_point_cloud,
                                                    get_spiral)
 from src.ri_distances.rotation_predictor import MSE
-from src.ri_distances.SGW.risgw import RisgwPredictor
-from src.ri_distances.SGW.sgw_pytorch import sgw_gpu, sgw_gpu_np
-from src.se3.visualization import viz_point_cloud
+from src.ri_distances.SGW.sgw_pytorch import sgw_gpu_np
 from tqdm import tqdm, trange
 
 plt.style.use('ggplot')

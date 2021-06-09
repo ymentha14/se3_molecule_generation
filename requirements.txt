@@ -16,6 +16,6 @@ PyYAML==5.4.1
 easydict==1.9
 wandb==0.10.31
 plotly==4.14.3
-jupyterlab
-matplotlib
+jupyterlab==3.0.16
+matplotlib==3.3.4
 tqdm==4.61.0

@@ -9,6 +9,7 @@ from src.ri_distances.pnt_cloud_generation import (center, center_batch,
                                                    to_numpy_array,
                                                    to_torch_tensor)
 from src.se3.visualization import viz_point_cloud
+from tqdm import trange
 
 plt.style.use("ggplot")
 
@@ -69,8 +70,6 @@ def get_model(model_path=None):
         if not model_path.exists():
             raise FileNotFoundError(f"{model_path}")
         transformer.load_state_dict(torch.load(model_path))
-    else:
-        print("Loading fresh model")
     _ = transformer.to(device)
     transformer = transformer.to(torch.float32)
     return transformer
@@ -106,7 +105,6 @@ def train_one_epoch(
     Train the model passed in parameter for one batch (epoch)
     """
     model.train()
-    print(f"Epoch {epoch}")
     # generate batch
     batch_points, batch_target_points = get_batch(src_gen=src_gen,trgt_gen=trgt_gen, batch_size=batch_size)
     batch_points = batch_points.to(device)
@@ -136,8 +134,6 @@ def train_one_epoch(
     optimizer.step()
     scheduler.step(loss)
     optimizer.zero_grad()
-
-    print(f"Loss: {loss}")
     # del predicted_deltas, predicted_points, loss, dist, uncentered_batch_points, uncentered_batch_targets_points, feats, batch_target_points, batch_points
     # torch.cuda.empty_cache()
     return loss
@@ -154,8 +150,9 @@ def start_training(model,lr,optimizer,epochs,criterion,batch_size,scheduler,devi
         config.center_output = center_output
         config.src_gen = src_gen
         config.trgt_gen = trgt_gen
-    for epoch in range(epochs):
 
+    t_bar = trange(epochs,leave=False,desc="Epochs progression")
+    for epoch in t_bar:
         loss = train_one_epoch(model=model,
                                use_wandb=use_wandb,
                                optimizer=optimizer,
@@ -167,6 +164,8 @@ def start_training(model,lr,optimizer,epochs,criterion,batch_size,scheduler,devi
                                src_gen=src_gen,
                                trgt_gen=trgt_gen,
                                center_output=center_output)
+        t_bar.set_description(
+            f'Epoch progression: loss: {loss:.8f}')
 
 def get_predictions(transformer, src_gen,trgt_gen, center_output):
 

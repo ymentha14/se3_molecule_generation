@@ -38,6 +38,9 @@ def evaluate_predictor(predictor, params, use_wandb=False):
         predictor (Predictor): predictor to assess performances for
         params (list of DataParam): parameters to test
         use_wandb (bool, optional): Whether to use wandb.
+
+    Return:
+
     """
 
     # metric function used
@@ -55,8 +58,9 @@ def evaluate_predictor(predictor, params, use_wandb=False):
 
         # non noisy target is the rotated/permuted version of the target for comparison purpose
         no_noise_target = P @ src_pnt_cloud @ Q
-        execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
-                    no_noise_target, results, use_wandb=use_wandb)
+        result = execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
+                    no_noise_target, use_wandb=use_wandb)
+        results.append(result)
 
     return results
 
@@ -82,11 +86,18 @@ def plot_metric(n_points, MSE_ts, metric_name,ax):
 
 
 def display_predictor_metrics_vs_pnt_cloud_size(results):
+    """
+    Display a given predictor metrics, that is, its SGW or MSE and time
+    vs number of point cloud
+
+    Args:
+        results (list of dict): list of dict as outputed by
+    """
 
     # TODO: ensure there is only one predictor in the dataframe
-    results = pd.DataFrame(results)
-    data = results.groupby('data_param').agg(list).reset_index()
-    N_runs = results.groupby('data_param').count().iloc[0, 0]
+    results_df = pd.DataFrame(results)
+    data = results_df.groupby('data_param').agg(list).reset_index()
+    N_runs = results_df.groupby('data_param').count().iloc[0, 0]
     p = data['data_param'].iloc[0]
     predictor = data['predictor'].iloc[0][0]
     fname = p.data_func.__name__

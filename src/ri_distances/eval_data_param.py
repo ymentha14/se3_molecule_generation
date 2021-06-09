@@ -85,13 +85,30 @@ def evaluate_data_param(p, predictors, use_wandb=False):
 
     results = []
     for predictor in tqdm(predictors, desc='Iterating predictors', leave=False):
-        execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
-                    no_noise_target, results, use_wandb=use_wandb)
+        result = execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
+                    no_noise_target, use_wandb=use_wandb)
+        results.append(result)
 
     return results
 
 
-def execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud, no_noise_target, results, use_wandb=False):
+def execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud, no_noise_target, use_wandb=False):
+    """
+    Execute one run with the given parameters, in particular with the combination of the given
+    predictor and data parameter p.
+
+    Args:
+        predictor ([type]): Predictor: a RotationPredictor
+        p (DataParam): data parameter
+        src_pnt_cloud (np.array): source point cloud
+        trgt_pnt_cloud (np.array): target point cloud
+        no_noise_target (np.array): ideal point cloud to retrieve
+        use_wandb (bool, optional): whether to log the metrics on wandb. Defaults to False.
+
+    Returns:
+        result (dict): the various parameters and metrics related to one run of the combination
+        of a data param and a predictor
+    """
     # Infer the rotation
     start_time = time.time()
     pred_pnt_cloud = predictor.predict(src_pnt_cloud, trgt_pnt_cloud)
@@ -106,14 +123,14 @@ def execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud, no_noise_target, re
     # Actual metric
     metric = MSE(pred_pnt_cloud, trgt_pnt_cloud)
 
-    results.append({'data_param': p,
-                    'predictor': predictor,
-                    'N_pts': p.N_pts,
-                    'time': duration,
-                    'metric': metric - min_metric,
-                    'name': str(predictor),
-                    'metric_name': p.metric_name,
-                    'fig': fig})
+    result = {'data_param': p,
+              'predictor': predictor,
+              'N_pts': p.N_pts,
+              'time': duration,
+              'metric': metric - min_metric,
+              'name': str(predictor),
+              'metric_name': p.metric_name,
+              'fig': fig}
     if use_wandb:
         run = wandb.init(project='point alignment', reinit=True)
 
@@ -130,6 +147,7 @@ def execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud, no_noise_target, re
         wandb.log({"point cloud": wandb.Image(fig)})
         wandb.log({"loss": metric})
         run.finish()
+    return result
 
 
 def plot_crossed_boxplot(x_data, y_data, label, ax):

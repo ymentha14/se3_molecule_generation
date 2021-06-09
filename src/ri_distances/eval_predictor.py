@@ -1,3 +1,9 @@
+"""
+Methods to evaluate a single predictor whose parameters are passed as arguments to the script
+The only parameter that changes is the number of point cloud, in order to assess how the predictor
+in question scales in terms of time and performance (SGW or MSE)
+"""
+
 import argparse
 import pdb
 import pickle as pk
@@ -15,8 +21,7 @@ import torch
 import wandb
 from src.ri_distances.eval_data_param import DataParam, execute_run
 from src.ri_distances.icp.icp import IcpPredictor
-from src.ri_distances.pnt_cloud_generation import (generate_target,
-                                                   get_gaussian_point_cloud,
+from src.ri_distances.pnt_cloud_generation import (get_gaussian_point_cloud,
                                                    get_spiral)
 from src.ri_distances.rotation_predictor import MSE
 from src.ri_distances.SGW.risgw import RisgwPredictor
@@ -47,19 +52,11 @@ def evaluate_predictor(predictor, params, use_wandb=False):
 
     results = []
     for p in tqdm(params, desc='Parameters iteration', leave=False):
-        # source point cloud that we transform
-        src_pnt_cloud = p.data_func(N_pts=p.N_pts)
 
-        # TODO: set generate_target as a function of DataParam
         # target point cloud is the point cloud we aim to obtain
-        Q, P, trgt_pnt_cloud = generate_target(src_pnt_cloud,
-                                               permute=p.permute,
-                                               noise_factor=p.noise_factor)
-
-        # non noisy target is the rotated/permuted version of the target for comparison purpose
-        no_noise_target = P @ src_pnt_cloud @ Q
+        src_pnt_cloud,clean_trgt,trgt_pnt_cloud= p.generate_target()
         result = execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
-                    no_noise_target, use_wandb=use_wandb)
+                    clean_trgt, use_wandb=use_wandb)
         results.append(result)
 
     return results

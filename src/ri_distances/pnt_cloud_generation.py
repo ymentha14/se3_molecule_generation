@@ -132,21 +132,6 @@ def get_n_regular_rotations(N):
     return rotations
 
 
-# Point Cloud Generation
-
-
-def generate_target(src, theta=None, noise_factor=0.0, permute=True):
-    N = src.shape[0]
-    Q = generate_rotation_matrix(theta=theta)
-    if permute:
-        P = generate_permutation_matrix(N)
-    else:
-        P = np.eye(N)
-    target = src @ Q
-    target = P @ target
-    target += np.random.randn(*target.shape) * noise_factor
-    return Q, P, target
-
 
 # Gaussian Point cloud
 

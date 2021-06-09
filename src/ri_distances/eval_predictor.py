@@ -75,10 +75,10 @@ def plot_time(n_points, times_ts, ax):
     ax.set_ylabel('Time taken (second)')
 
 
-def plot_MSE(n_points, MSE_ts, ax):
+def plot_metric(n_points, MSE_ts, metric_name,ax):
     incertitude_plot(n_points, MSE_ts, ax)
     ax.set_xlabel('Number of points in the point cloud')
-    ax.set_ylabel('Metric difference')
+    ax.set_ylabel(f'{metric_name} difference')
 
 
 def display_predictor_metrics_vs_pnt_cloud_size(results):
@@ -99,7 +99,7 @@ def display_predictor_metrics_vs_pnt_cloud_size(results):
         f"Func={fname},N_runs={N_runs},permute={p.permute},noise={p.noise_factor}\n{predictor}",
         fontsize=15)
     plot_time(n_points, times_ts, axes[1])
-    plot_MSE(n_points, MSE_ts, axes[0])
+    plot_metric(n_points, MSE_ts, metric_name=p.metric_name,ax=axes[0])
 
 
 def main():
@@ -134,8 +134,10 @@ def main():
     # Type of metric function
     if args.metric_func == 'mse':
         metric_func = MSE
+        metric_name = "MSE"
     elif args.metric_func == 'sgw':
         metric_func = sgw_gpu_np
+        metric_name = "SGW"
     else:
         raise ValueError(
             f"Option {args.metric_func} not recognized for the metric function.")
@@ -146,7 +148,8 @@ def main():
                                data_func=data_func,
                                metric_func=metric_func,
                                permute=args.permute,
-                               noise_factor=args.noise_factor)
+                               noise_factor=args.noise_factor,
+                               metric_name=metric_name)
         data_params.append(data_param)
 
     results = []

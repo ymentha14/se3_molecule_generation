@@ -37,6 +37,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class DataParam():
     """ Parameter for the data obtention
     """
+    metric_name: str
     data_func: 'function'
     metric_func: 'function'
     N_pts: int = 50
@@ -111,6 +112,7 @@ def execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud, no_noise_target, re
                     'time': duration,
                     'metric': metric - min_metric,
                     'name': str(predictor),
+                    'metric_name': p.metric_name,
                     'fig': fig})
     if use_wandb:
         run = wandb.init(project='point alignment', reinit=True)
@@ -166,16 +168,16 @@ def display_metric_vs_time_results(results, fig, ax):
     Args:
         results (list of dict): as returned by evaluate_predictor
     """
-    results = pd.DataFrame(results)
-    data = results.groupby('name').agg(list).to_dict(orient='index')
-    N_runs = results.groupby('name').agg(len).iloc[0, 0]
-    p = results.iloc[0]['data_param']
+    results_df = pd.DataFrame(results)
+    data = results_df.groupby('name').agg(list).to_dict(orient='index')
+    N_runs = results_df.groupby('name').agg(len).iloc[0, 0]
+    p = results_df.iloc[0]['data_param']
     fig.suptitle(
         f"Datafunc:{p.data_func.__name__},Metric={p.metric_func},N_runs={N_runs},N_pts={p.N_pts},permute={p.permute},noise={p.noise_factor}",
         fontsize=15)
 
     ax.set_xlabel('Time [sec]', fontsize=20)
-    ax.set_ylabel('metric', fontsize=20)
+    ax.set_ylabel(p.metric_name, fontsize=20)
     for model_name, model_data in data.items():
         plot_crossed_boxplot(
             x_data=model_data['time'], y_data=model_data['metric'], label=model_name, ax=ax)
@@ -231,8 +233,10 @@ def main():
     # Type of metric function
     if args.metric_func == 'mse':
         metric_func = MSE
+        metric_name = 'MSE'
     elif args.metric_func == 'sgw':
         metric_func = sgw_gpu_np
+        metric_name = 'SGW'
     else:
         raise ValueError(
             f"Option {args.metric_func} not recognized for the metric function.")
@@ -252,7 +256,8 @@ def main():
 
     results = []
     for _ in trange(N_runs, desc="Run number:", leave=True):
-        data_param = DataParam(N_pts=args.N_points,
+        data_param = DataParam(metric_name=metric_name,
+                               N_pts=args.N_points,
                                metric_func=metric_func,
                                data_func=data_func,
                                permute=args.permute,

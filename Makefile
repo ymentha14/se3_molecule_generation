@@ -18,7 +18,6 @@ PYTHON_INTERPRETER = python3
 se3_expes:
 	@python src/se3/se3_expes.py
 
-
 # reproduce the loss vs time figure
 loss_vs_time:
 	@python src/ri_distances/eval_data_param.py  -d='g' -N=3 -p -f=0.02 -o="loss_vs_time"
@@ -54,20 +53,22 @@ requirements:
 #################################################################################
 
 # build the explorer image
-docker_build:
+build_image:
 	@docker build -t se3_equiv .
 
+
+# TODO: remove the mounted source
 docker_run:
 	@docker run -it \
 	-v `pwd`/results:/app/results \
+	-v `pwd`/src:/app/src \
+	-v `pwd`/Makefile:/app/Makefile \
 	-w /app \
 	-e USER=$USER \
 	-p 8888:8888 \
 	se3_equiv \
 	/bin/bash
-# -v `pwd`/Makefile:/app/Makefile \
 # -v `pwd`/requirements.txt:/app/requirements.txt \
-# -v `pwd`/src:/app/src \
 # -v `pwd`/scripts:/app/scripts \
 # -v notebooks:/app/notebooks \
 

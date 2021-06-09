@@ -18,6 +18,7 @@ from src.ri_distances.icp.icp import IcpPredictor
 from src.ri_distances.pnt_cloud_generation import (get_gaussian_point_cloud,
                                                    get_spiral)
 from src.ri_distances.rotation_predictor import MSE
+from src.ri_distances.SGW.risgw import RisgwPredictor
 from src.ri_distances.SGW.sgw_pytorch import sgw_gpu_np
 from tqdm import tqdm, trange
 
@@ -92,8 +93,6 @@ def display_predictor_metrics_vs_pnt_cloud_size(results,fig,axes):
     Args:
         results (list of dict): list of dict as outputed by
     """
-
-    # TODO: ensure there is only one predictor in the dataframe
     results_df = pd.DataFrame(results)
     data = results_df.groupby('data_param').agg(list).reset_index()
     N_runs = results_df.groupby('data_param').count().iloc[0, 0]
@@ -119,6 +118,8 @@ def main():
     parser.add_argument(
         '-d', '--dataset', help='dataset type(spiral="s",gaussian="g")', default='s')
     parser.add_argument(
+        '--model', help='model type("icp" or "risgw")', default='icp')
+    parser.add_argument(
         '-m', '--metric_func', help='metric function type(MSE="mse",sgw="sgw")', default='mse')
     parser.add_argument('-N', '--N_runs', help='Number of experiments',
                         type=int, default=1)
@@ -126,11 +127,26 @@ def main():
     parser.add_argument('-s', '--step_size', default=10, type=int)
     parser.add_argument('-f', '--noise_factor', default=0.0, type=float)
     parser.add_argument('-q', '--quick', default=False, action='store_true')
+    parser.add_argument(
+        '-o', '--output_name',help='output file name', default="metrics_vs_cloud_size.png")
+
     args = parser.parse_args()
 
-    N_runs = args.N_runs
-    N_rots = 5 if args.quick else 50
-    predictor = IcpPredictor(max_iter=100, N_rots=N_rots)
+    # debugging option
+    if args.quick:
+        N_runs = 5
+        N_rots = 5
+        max_iter = 10
+    else:
+        N_runs = args.N_runs
+        N_rots = 50
+        max_iter = 130
+
+    if args.model == "icp":
+        predictor = IcpPredictor(max_iter=max_iter, N_rots=N_rots)
+    else:
+        predictor = RisgwPredictor(max_iter=max_iter)
+
 
     if args.dataset == 's':
         data_func = get_spiral
@@ -166,6 +182,10 @@ def main():
         results += evaluate_predictor(predictor, data_params)
         pk.dump(results, run_path.open('wb'))
 
+    # Save the metrics
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    display_predictor_metrics_vs_pnt_cloud_size(results,fig,axes)
+    fig.savefig(f"results/{args.output_name}",bbox_inches='tight')
 
 if __name__ == '__main__':
     main()

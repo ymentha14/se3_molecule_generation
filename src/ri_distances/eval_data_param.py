@@ -234,7 +234,6 @@ def display_metric_vs_time_results(results, fig, ax):
         plot_crossed_boxplot(
             x_data=model_data['time'], y_data=model_data['metric'], label=model_name, ax=ax)
     plt.close()
-    return fig
 
 
 def load_most_recent(res_dir):
@@ -268,6 +267,8 @@ def main():
     parser.add_argument('-p', '--permute', default=True, action='store_true')
     parser.add_argument('-f', '--noise_factor', default=0.0, type=float)
     parser.add_argument('-q', '--quick', default=False, action='store_true')
+    parser.add_argument(
+        '-o', '--output_name',help='output file name', default="loss_vs_time.png")
     args = parser.parse_args()
 
     # Experiment parameter
@@ -318,6 +319,11 @@ def main():
         results += evaluate_data_param(
             p=data_param, predictors=predictors)
         pk.dump(results, run_path.open('wb'))
+
+    # Save the metrics
+    fig,ax = plt.subplots(1,dpi=100,figsize=(15,5))
+    display_metric_vs_time_results(results,fig,ax)
+    fig.savefig(f"results/{args.output_name}",bbox_inches='tight')
 
 
 if __name__ == '__main__':

@@ -10,8 +10,22 @@ PROFILE = default
 PROJECT_NAME = k
 PYTHON_INTERPRETER = python3
 
+#################################################################################
+# Reproducibillity
+#################################################################################
 
-############## Virtual Env ##############
+# reproduce the loss vs time figure
+loss_vs_time:
+	@python src/ri_distances/eval_data_param.py  -d='g' -N=3 -p -f=0.02 -o="loss_vs_time"
+
+
+# reproduce the ICP scalability figure
+icp_metrics:
+	@python src/ri_distances/eval_predictor.py -d='g' -N=15 -p -f=0.12 -m='sgw' -o='icp_metrics_2.png'
+
+#################################################################################
+# Virtual Env
+#################################################################################
 
 # Create pypi virtual env
 create_env:

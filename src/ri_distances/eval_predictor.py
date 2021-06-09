@@ -36,33 +36,37 @@ torch.set_default_dtype(torch.float32)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def evaluate_predictor(predictor, params, use_wandb=False):
-    """Evaluate many data parameters for a given predictor
+def evaluate_predictor(predictor, params):
+    """
+    Evaluate many data parameters for a given predictor. In practice, the params should
+    all be the same except for the number of points in the point cloud
 
     Args:
         predictor (Predictor): predictor to assess performances for
         params (list of DataParam): parameters to test
-        use_wandb (bool, optional): Whether to use wandb.
 
     Return:
-
+        [list of dict]: list of results as returned by execute_run
     """
-
-    # metric function used
-
     results = []
     for p in tqdm(params, desc='Parameters iteration', leave=False):
-
         # target point cloud is the point cloud we aim to obtain
         src_pnt_cloud,clean_trgt,trgt_pnt_cloud= p.generate_target()
         result = execute_run(predictor, p, src_pnt_cloud, trgt_pnt_cloud,
-                    clean_trgt, use_wandb=use_wandb)
+                    clean_trgt)
         results.append(result)
-
     return results
 
 
 def incertitude_plot(x_ticks, ts, ax):
+    """
+    Plot an incertitue plot in terms of quartile
+
+    Args:
+        x_ticks (np.array): values to plot on the x axis
+        ts (np.array): values to plot and extract the incertitued for
+        ax (plt.axis): ax to plot on
+    """
     q75 = np.quantile(ts, 0.75, axis=1)
     q25 = np.quantile(ts, 0.25, axis=1)
     q50 = np.median(ts, axis=1)
@@ -71,13 +75,19 @@ def incertitude_plot(x_ticks, ts, ax):
 
 
 def plot_time(n_points, times_ts, ax):
+    """
+    generate and incertitude plot for the time data passed in parameter
+    """
     incertitude_plot(n_points, times_ts, ax)
     ax.set_xlabel('Number of points in the point cloud')
     ax.set_ylabel('Time taken (second)')
 
 
-def plot_metric(n_points, MSE_ts, metric_name,ax):
-    incertitude_plot(n_points, MSE_ts, ax)
+def plot_metric(n_points, metric_ts, metric_name,ax):
+    """
+    generate an incertitude plot for the metric data passed in parameter
+    """
+    incertitude_plot(n_points, metric_ts, ax)
     ax.set_xlabel('Number of points in the point cloud')
     ax.set_ylabel(f'{metric_name} difference')
 
@@ -108,6 +118,7 @@ def display_predictor_metrics_vs_pnt_cloud_size(results):
         fontsize=15)
     plot_time(n_points, times_ts, axes[1])
     plot_metric(n_points, MSE_ts, metric_name=p.metric_name,ax=axes[0])
+    return fig
 
 
 def main():

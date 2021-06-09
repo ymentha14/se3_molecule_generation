@@ -1,4 +1,5 @@
 data/
+results/
 notebooks/wandb
 models/
 plots/

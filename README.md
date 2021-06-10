@@ -38,6 +38,9 @@
 
 ## About the Project
 TODO: copy abstract
+<p align="center" width="100%">
+<img src="images/bunny.gif" alt="Logo" width="33%" height="">
+</p>
 Equivariant neural networks such as the [SE(3) transformer](https://arxiv.org/abs/2006.10503) could help in task
 
 ## Getting Started

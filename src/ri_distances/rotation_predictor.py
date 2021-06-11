@@ -9,7 +9,7 @@ class RotationPredictor():
     @staticmethod
     def deduce_permutation_matrix(A, B):
         """Deduce the best permutation matrix transforming A into B
-        using Hungarian algorithm, i.e return P such that MSE(P @ A,B)
+        using Hungarian algorithm, i.e return P such that WS(P @ A,B)
         is minimized
         """
         assert(A.shape == B.shape)
@@ -61,8 +61,8 @@ class RotationPredictor():
     #     return comp_perm_matrix
 
 
-def MSE(x, y):
+def WS(x, y):
     """
-    Classic MSE for numpy
+    Classic WS for numpy
     """
     return ((x-y)**2).mean()

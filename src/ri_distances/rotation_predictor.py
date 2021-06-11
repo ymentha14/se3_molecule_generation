@@ -27,38 +27,13 @@ class RotationPredictor():
         values = tuple(self.__dict__.values())
         return hash(values)
 
-    # @staticmethod
-    # def deduce_permutation_matrix(A, B):
-    #     """deduce the best permutation matrix to transform matrix A
-    #     into matrix B
 
-    #     Args:
-    #         A (np.array): matrix to transform
-    #         B (np.array): target matrix
-
-    #     Returns:
-    #         np.array: permutation matrix
-    #     """
-    #     assert(A.shape == B.shape)
-    #     N = A.shape[0]
-    #     distances = distance_matrix(A, B)
-
-    #     indexes = [np.unravel_index(ind, distances.shape)
-    #                for ind in distances.flatten().argsort()]
-
-    #     x_mask = [True for i in range(N)]
-    #     y_mask = [True for i in range(N)]
-    #     mapping = []
-    #     for x, y in indexes:
-    #         if x_mask[x] and y_mask[y]:
-    #             mapping.append((x, y))
-    #             x_mask[x] = False
-    #             y_mask[y] = False
-
-    #     mapping = [i[0] for i in sorted(mapping, key=lambda x: x[1])]
-
-    #     comp_perm_matrix = np.identity(N)[mapping]
-    #     return comp_perm_matrix
+class DummyPredictor(RotationPredictor):
+    def predict(self, src_pts, trgt_pts):
+        pred_perm_matrix = DummyPredictor.deduce_permutation_matrix(
+            src_pts, trgt_pts)
+        pred_pts = pred_perm_matrix.dot(src_pts)
+        return pred_pts
 
 
 def WS(x, y):

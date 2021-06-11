@@ -41,6 +41,15 @@ def plot_bunny(bunny_data, ax, color=None, label=None):
     ax.legend()
 
 
+def get_bunny_data(N_pts):
+    data = Bunny().coords
+    data = np.random.permutation(data)[:N_pts]
+    Q = generate_rotation_matrix(theta=4.8, axis=np.array([1, 0, 0]))
+    # P =  generate_rotation_matrix(theta=0.3,axis=np.array([-0.4,1.0,1.0]))
+    data_rot = data @ Q
+    return data_rot
+
+
 def plot_rotated_noisy_bunnies(rotated_bunny, noisy_bunny, ax):
     """Plot a rotated and a noisy bunny
     """

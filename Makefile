@@ -19,13 +19,21 @@ PYTHON_INTERPRETER = python3
 loss_vs_time:
 	@python src/ri_distances/eval_data_param.py  -d='g' -N=30 -p -f=0.03 -m='sgw' -o="loss_vs_time"
 
-# reproduce the ICP scalability figure
+# reproduce the ICP scalability figure 1
 icp_metrics:
+	@python src/ri_distances/eval_predictor.py -d='g' -N=30 -p -f=0.03 -m='sgw' -o='icp_metrics.png'
+
+# reproduce the ICP scalability figure 2
+icp_metrics2:
 	@python src/ri_distances/eval_predictor.py -d='g' -N=30 -p -f=0.12 -m='sgw' -o='icp_metrics_2.png'
 
 # reproduce the se3 appendix experiment plots
 se3_expes:
 	@python src/se3/se3_expes.py
+
+# reproduce the 3 datasets plot (spiral, gaussian, bunny)
+data3:
+	@python src/ri_distances/3datasets.py
 
 # start a jupyter notebook for quick visualization of point alignment algorithm
 start_jupy:

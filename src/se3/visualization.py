@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from src.constants import color_map
 
 plt.style.use('ggplot')
 
@@ -64,8 +65,6 @@ def viz_point_cloud(*args):
         [list of tensors]
     """
 
-    color_map = {'src': '#348ABD', 'trgt': '#E24A33',
-                 'pred': '#988ED5', 'clean_trgt': '#8EBA42'}
     # fig = plt.figure(dpi=100)
     fig = plt.figure()
 
@@ -93,6 +92,14 @@ def viz_point_cloud(*args):
                  lambda ax, minval, maxval: ax.set_xlim(minval, maxval))
     plt.close()
     return fig
+
+
+def viz_src_trgt(*args, ax=None):
+    for _, pointss in enumerate(args):
+        for points, label in pointss:
+            color = color_map.get(label, np.random.rand(3,))
+            ax.scatter3D(*points.T, label=label,  color=color)
+            ax.legend()
 
 
 def viz_point_cloud_2d(*args):

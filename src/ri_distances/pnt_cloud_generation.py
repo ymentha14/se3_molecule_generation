@@ -132,7 +132,6 @@ def get_n_regular_rotations(N):
     return rotations
 
 
-
 # Gaussian Point cloud
 
 
@@ -143,7 +142,7 @@ def get_gaussian_point_cloud(N_pts):
 # Spiral Point cloud
 
 
-def get_asym_spiral(spiral_amp=1.0, width_factor=1.0,N_pts=40):
+def get_asym_spiral(spiral_amp=1.0, width_factor=1.0, N_pts=40):
     """
     Generate a spiral with the given amplitude
 
@@ -154,8 +153,10 @@ def get_asym_spiral(spiral_amp=1.0, width_factor=1.0,N_pts=40):
         np.array: spiral point cloud
     """
     zline = np.linspace(0, spiral_amp, N_pts)
-    xline = [(i + 4) * np.sin(i) / 10 * width_factor for i in zline * 4 * np.pi]
-    yline = [(i + 4) * np.cos(i) / 10 * width_factor for i in zline * 4 * np.pi]
+    xline = [(i + 4) * np.sin(i) / 10 *
+             width_factor for i in zline * 4 * np.pi]
+    yline = [(i + 4) * np.cos(i) / 10 *
+             width_factor for i in zline * 4 * np.pi]
     return np.array([xline, yline, zline]).transpose()
 
 
@@ -169,40 +170,43 @@ def get_spiral(spiral_amp=1.0, N_pts=40):
     Returns:
         np.array: spiral point cloud
     """
-    zline = np.linspace(0, spiral_amp, 40)
+    zline = np.linspace(0, spiral_amp, N_pts)
     xline = np.sin(zline * 4 * np.pi)
     yline = np.cos(zline * 4 * np.pi)
     return np.array([xline, yline, zline]).transpose()
+
+
 @dataclass(frozen=True)
 class SpiralGenerator:
-    spiral_amp : float=1.0
-    scaling : float=1.0
-    shift : float=0.0
-    asym : bool=False
-    width_factor :float=1.0
-    centering : bool=False
+    spiral_amp: float = 1.0
+    scaling: float = 1.0
+    shift: float = 0.0
+    asym: bool = False
+    width_factor: float = 1.0
+    centering: bool = False
 
     def __post_init__(self):
-        assert(not (self.centering and self.shift!=0))
+        assert(not (self.centering and self.shift != 0))
 
     @lru_cache(None)
     def generate(self,):
         if self.asym:
-            points = get_asym_spiral(spiral_amp=self.spiral_amp,width_factor=self.width_factor)
+            points = get_asym_spiral(
+                spiral_amp=self.spiral_amp, width_factor=self.width_factor)
         else:
             points = get_spiral(spiral_amp=self.spiral_amp)
 
         [xline, yline, zline] = points.transpose()
         zline *= self.scaling
         zline += self.shift
-        points = np.array([xline, yline, zline ]).transpose()
+        points = np.array([xline, yline, zline]).transpose()
         if self.centering:
             points = center(points)
         return points
 
 
-def get_custom_spiral(spiral_amp=1.0,scaling=1.0,shift=0.0,asym=False,centering=False):
-    assert(not (centering and shift!=0))
+def get_custom_spiral(spiral_amp=1.0, scaling=1.0, shift=0.0, asym=False, centering=False):
+    assert(not (centering and shift != 0))
 
     if asym:
         points = get_asym_spiral(spiral_amp=spiral_amp)
@@ -212,10 +216,11 @@ def get_custom_spiral(spiral_amp=1.0,scaling=1.0,shift=0.0,asym=False,centering=
     [xline, yline, zline] = points.transpose()
     zline *= scaling
     zline += shift
-    points = np.array([xline, yline, zline ]).transpose()
+    points = np.array([xline, yline, zline]).transpose()
     if centering:
         points = center(points)
     return points
+
 
 def get_src_shifted_spirals(
     spiral_amp=1.0, shift=0.5, asym=False, center_input=False, center_target=False

@@ -53,7 +53,7 @@ class DataParam():
 
     def __post_init__(self):
         if self.metric_name is None:
-            self.metric_name = self.data_func.__name__
+            self.metric_name = self.metric_func.__name__
 
     def __hash__(self):
         values = tuple(self.__dict__.values())
@@ -72,6 +72,7 @@ class DataParam():
         """
         # Source point generation
         src_pnt_cloud = self.data_func(N_pts=self.N_pts)
+
         Q = generate_rotation_matrix(theta=self.theta)
         if self.permute:
             P = generate_permutation_matrix(self.N_pts)

@@ -51,7 +51,7 @@ def evaluate_predictor(predictor, params):
     return results
 
 
-def incertitude_plot(x_ticks, ts, ax):
+def incertitude_plot(x_ticks, ts, ax, label="", color='r'):
     """
     Plot an incertitue plot in terms of quartile
 
@@ -63,8 +63,9 @@ def incertitude_plot(x_ticks, ts, ax):
     q75 = np.quantile(ts, 0.75, axis=1)
     q25 = np.quantile(ts, 0.25, axis=1)
     q50 = np.median(ts, axis=1)
-    ax.plot(x_ticks, q50)
-    ax.fill_between(x_ticks, q25, q75, alpha=0.2)
+    ax.plot(x_ticks, q50, color=color, label=label)
+    ax.fill_between(x_ticks, q25, q75, alpha=0.2, color=color)
+    ax.legend()
 
 
 def plot_time(n_points, times_ts, ax):

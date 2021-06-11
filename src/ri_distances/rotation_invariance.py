@@ -1,6 +1,8 @@
 """
 Functions to regenerate the 3 datasets plot
 """
+from pathlib import Path
+
 from src.bunny.bunny import get_bunny_data, plot_bunny
 from src.ri_distances.eval_predictor import *
 from src.ri_distances.rotation_predictor import *
@@ -54,12 +56,14 @@ def extract_theta_metrics(results):
 
     return metric_ts
 
-def display_dummy_icp_inceritude_plots(thetas,dummy,icp,ax,title=""):
+
+def display_dummy_icp_inceritude_plots(thetas, dummy, icp, ax, title=""):
     ax.set_title(f"SGW loss vs angle for {title}")
     ax.set_xlabel('Angle in radians')
     ax.set_ylabel(f'SGW difference')
-    incertitude_plot(thetas,icp,ax,label='ICP',color='#8EBA42')
-    incertitude_plot(thetas,dummy,ax,label='No alignment',color='#988ED5')
+    incertitude_plot(thetas, icp, ax, label='ICP', color='#8EBA42')
+    incertitude_plot(thetas, dummy, ax, label='No alignment', color='#988ED5')
+
 
 def visualize_repr(data_func, N_pts, noise_factor, ax):
     repr_p = DataParam(data_func, theta=0, N_pts=N_pts,
@@ -117,7 +121,10 @@ def main():
     plot_bunny(src, ax, color='#348ABD', label='src')
     plot_bunny(trgt, ax, color='#E24A33', label='trgt')
     ax = fig.add_subplot(2, 3, 6)
-    fig.savefig("results/3dataset.png", bbox_inches='tight')
+    display_dummy_icp_inceritude_plots(
+        thetas, bunny_dummy, bunny_icp, ax, title="gaussian")
+    fig.savefig("results/3dataset.png", bbox_inches='tight', dpi=300)
+    return fig
 
 
 if __name__ == '__main__':

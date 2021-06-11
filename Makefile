@@ -33,7 +33,7 @@ se3_expes:
 
 # reproduce the 3 datasets plot (spiral, gaussian, bunny)
 data3:
-	@python src/ri_distances/3datasets.py
+	@python src/ri_distances/rotation_invariance.py
 
 # start a jupyter notebook for quick visualization of point alignment algorithm
 start_jupy:

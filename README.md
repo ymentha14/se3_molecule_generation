@@ -1,7 +1,7 @@
 
 <!-- PROJECT LOGO -->
 <br />
-  <h1 align="center">Towards an efficient loss function for SE(3) equivariant molecule generation</h1>
+  <h1 align="center">Towards an Efficient Loss Function for SE(3) Equivariant Networks-based Molecule Generation</h1>
 <p align="center">
    <p align="center">
     An exploration of metrics for equivariant NN based molecule generation
@@ -37,11 +37,18 @@
 
 
 ## About the Project
-TODO: copy abstract
+Recent deep learning techniques met a certain success during the past few years in the field of de-novo molecule generation, mainly using graph-based VAEs or recurrent neural network. Molecules are per se objects living in 3 dimensions, modelling them as a set of points in R3 might represent a viable solution for future experiments, as it retains information about relative positions of atoms that graphs and SMILES sequences could fail to grasp. Yet, actual deep learning models dealing with such point clouds face a problem of translation, permutation and rotation invariances, inherant to this type of 3d representation. SE(3) equivariant neural networks could efficiently tackle this issue, as recent experiments tend to show that such architectures not only generalize better and are less data-hungry for analogous task, but also represent a class of universal approximators for the set of equivariant functions.  However, we see that these models require a non-trivial rotation-invariant loss function in order to learn optimally, that we aim at exploring in the present paper.
+
+<br>
 <p align="center" width="100%">
-<img src="images/bunny.gif" alt="Logo" width="33%" height="">
+<img src="images/model.png" alt="model" height="">
 </p>
-Equivariant neural networks such as the [SE(3) transformer](https://arxiv.org/abs/2006.10503) could help in task
+Our model would consist of a VAE using several SE(3) equivariant layers along with one rotation invariant layer, therefore making the model itself becoming invariant to rotation. The molecule are modelled here as a bunny point cloud for sake of simplicity: as we input a non-noisy molecule in the model, the encoder builds a latent vector from which the decoder tries to reconstruct the molecule, up to some error (here modelled as a gaussian noise). We want to find a loss function that penalizes such reconstruction errors, but does not for the part that is due to rotation. More intuitively, we would like a loss function that behaves like the one on the lower right corner of this animation (the lower left shows naive Wasserstein between the input and the output of the model): it increases when the reconstruction error does, but stay overall constant upon rotation of the input point cloud.
+<br>
+<p align="center" width="100%">
+<img src="images/bunny.gif" alt="model" width="33%" height="">
+</p>
+
 
 ## Getting Started
 ### Prerequisites
@@ -120,7 +127,14 @@ for help
 ```
 python src/ri_distances/eval_predictor --help
 ```
+#### Rotation invariance 3 datasets
+To recreate the figure about invariance to rotations for 3 types of dataset
+<img src="images/3dataset.png" alt="Logo" width="" height="">
 
+run
+```
+make data3
+```
 
 #### SE(3) Appendix Figures
 Finally, for every figure of SE(3) experiment such as:
